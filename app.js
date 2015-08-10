@@ -97,7 +97,7 @@ app.get('/cas_login', function(req, res, next) {
 });
 
 app.use('/', routes);
-app.get('/users', passport.authenticate('local'), function(req, res) {
+app.get('/users', passport.authenticate('cas'), function(req, res) {
   res.send('respond with a resource: ' + JSON.stringify(req.user));
 });
 // app.use('/users', users);
