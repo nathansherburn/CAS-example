@@ -1,9 +1,11 @@
+
+//  Simulated mongoose db user lookup call
 var User = {
   findOne: function (userDetails, callback) {
     
-    var user = userDetails.login;
+    var user = "john";
 
-    callback(null, user);
+    return callback(null, user);
   }
 }
 
@@ -71,6 +73,10 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
+app.use(express.session({ secret: 'keyboard cat' }));
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
