@@ -21,8 +21,10 @@ passport.deserializeUser(function(user, done) {
 
 // Configure
 passport.use(new (require('passport-cas').Strategy)({
+  version: 'CAS3.0',
   ssoBaseURL: 'https://my.monash.edu.au/authentication/cas',
-  serverBaseURL: 'http://melts-dev.eng.monash.edu:8002/'
+  serverBaseURL: 'http://melts-dev.eng.monash.edu:8002/',
+  validateURL: '/serviceValidate'
 }, function(login, done) {
   User.findOne({login: login}, function (err, user) {
     if (err) {
@@ -44,7 +46,7 @@ passport.authenticate('cas', function (err, user, info) {
 
   if (!user) {
     req.session.messages = info.message;
-    return res.redirect('/no_user_this_is_not_defined');
+    return res.redirect('/route_for_no_user_in_melts_system');
   }
 
   req.logIn(user, function (err) {
@@ -89,6 +91,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', passport.authenticate('cas'), users);
+// app.use('/users', users);
 
 
 
