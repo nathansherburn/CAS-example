@@ -11,54 +11,6 @@ var User = {
 
 var passport = require('passport')
 
-passport.serializeUser(function(user, done) {
-  done(null, user);
-});
-
-passport.deserializeUser(function(user, done) {
-  done(null, user);
-});
-
-// Configure
-passport.use(new (require('passport-cas').Strategy)({
-  version: 'CAS3.0',
-  ssoBaseURL: 'https://my.monash.edu.au/authentication/cas',
-  serverBaseURL: 'http://melts-dev.eng.monash.edu:8002/',
-  validateURL: '/serviceValidate'
-}, function(login, done) {
-  User.findOne({login: login}, function (err, user) {
-    if (err) {
-      return done(err);
-    }
-    if (!user) {
-      return done(null, false, {message: 'Unknown user'});
-    }
-    return done(null, user);
-  });
-}));
-
-
-// Authenticate
-passport.authenticate('cas', function (err, user, info) {
-  if (err) {
-    return next(err);
-  }
-
-  if (!user) {
-    req.session.messages = info.message;
-    return res.redirect('/route_for_no_user_in_melts_system');
-  }
-
-  req.logIn(user, function (err) {
-    if (err) {
-      return next(err);
-    }
-
-    req.session.messages = '';
-    return res.redirect('/users');
-  });
-})
-
 
 
 var express = require('express');
@@ -89,8 +41,64 @@ app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+
+
+
+
+
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
+
+// Configure
+passport.use(new (require('passport-cas').Strategy)({
+  version: 'CAS3.0',
+  ssoBaseURL: 'https://my.monash.edu.au/authentication/cas',
+  serverBaseURL: 'http://melts-dev.eng.monash.edu:8002/',
+  validateURL: '/serviceValidate'
+}, function(login, done) {
+  User.findOne({login: login}, function (err, user) {
+    if (err) {
+      return done(err);
+    }
+    if (!user) {
+      return done(null, false, {message: 'Unknown user'});
+    }
+    return done(null, user);
+  });
+}));
+
+
+
+app.get('/cas_login', function(req, res, next) {
+  passport.authenticate('cas', function (err, user, info) {
+    if (err) {
+      return next(err);
+    }
+
+    if (!user) {
+      req.session.messages = info.message;
+      return res.redirect('/');
+    }
+
+    req.logIn(user, function (err) {
+      if (err) {
+        return next(err);
+      }
+
+      req.session.messages = '';
+      return res.redirect('/');
+    });
+  })(req, res, next);
+});
+
 app.use('/', routes);
-app.use('/users', passport.authenticate('cas'), users);
+app.use('/users', users);
 // app.use('/users', users);
 
 
