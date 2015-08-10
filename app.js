@@ -12,7 +12,7 @@ var passport = require('passport')
 
 // Configure
 passport.use(new (require('passport-cas').Strategy)({
-  ssoBaseURL: 'https://my.monash.edu.au/authentication/cas/login/',
+  ssoBaseURL: 'https://my.monash.edu.au/authentication/cas',
   serverBaseURL: 'http://melts-dev.eng.monash.edu:8002/'
 }, function(login, done) {
   User.findOne({login: login}, function (err, user) {
