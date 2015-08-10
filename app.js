@@ -2,8 +2,8 @@
 //  Simulated mongoose db user lookup call
 var User = {
   findOne: function (userDetails, callback) {
-    console.log(userDetails)
-    var user = "john";
+
+    var user = userDetails;
 
     return callback(null, user);
   }
