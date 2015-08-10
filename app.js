@@ -53,7 +53,7 @@ passport.authenticate('cas', function (err, user, info) {
     }
 
     req.session.messages = '';
-    return res.redirect('/user/:ticket');
+    return res.redirect('/users');
   });
 })
 
