@@ -22,7 +22,6 @@ var bodyParser = require('body-parser');
 var session = require('express-session')
 
 var routes = require('./routes/index');
-var users = require('./routes/users');
 
 var app = express();
 
@@ -98,7 +97,9 @@ app.get('/cas_login', function(req, res, next) {
 });
 
 app.use('/', routes);
-app.use('/users', users);
+app.get('/users', passport.authenticate('local'), function(req, res) {
+  res.send('respond with a resource: ' + JSON.stringify(req.user));
+});
 // app.use('/users', users);
 
 
