@@ -91,17 +91,29 @@ app.get('/cas_login', function(req, res, next) {
       }
 
       req.session.messages = '';
-      return res.redirect('/');
+      return res.redirect('/home');
     });
   })(req, res, next);
 });
 
-app.use('/', routes);
-app.get('/users', passport.authenticate('cas'), function(req, res) {
-  res.send('respond with a resource: ' + JSON.stringify(req.user));
-});
-// app.use('/users', users);
 
+
+function isLoggedIn(req, res, next) {
+    if (req.user) {
+        next();
+    } else {
+        res.redirect('/cas_login');
+    }
+}
+
+
+app.get('/', function(req, res) {
+  res.send('login with: <a href="/cas_login">Monash</a>');
+});
+
+app.get('/home', isLoggedIn, function(req, res) {
+  res.send('Logged in as: ' + JSON.stringify(req.user));
+});
 
 
 /// catch 404 and forward to error handler
