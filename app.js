@@ -1,5 +1,16 @@
+var express = require('express');
+var path = require('path');
+var favicon = require('static-favicon');
+var logger = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
+var session = require('express-session')
+var passport = require('passport')
 
-//  Simulated mongoose db user lookup call
+var app = express();
+
+
+//  Simulated db User model (ie Mongoose)
 var User = {
   findOne: function (userDetails, callback) {
 
@@ -9,21 +20,6 @@ var User = {
   }
 }
 
-var passport = require('passport')
-
-
-
-var express = require('express');
-var path = require('path');
-var favicon = require('static-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var session = require('express-session')
-
-var routes = require('./routes/index');
-
-var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -41,11 +37,7 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-
-
-
-
-
+// Passport config
 passport.serializeUser(function(user, done) {
   done(null, user);
 });
@@ -54,7 +46,7 @@ passport.deserializeUser(function(user, done) {
   done(null, user);
 });
 
-// Configure
+// Configure CAS
 passport.use(new (require('passport-cas').Strategy)({
   version: 'CAS3.0',
   ssoBaseURL: 'https://my.monash.edu.au/authentication/cas',
@@ -72,8 +64,7 @@ passport.use(new (require('passport-cas').Strategy)({
   });
 }));
 
-
-
+// Add login route
 app.get('/cas_login', function(req, res, next) {
   passport.authenticate('cas', function (err, user, info) {
     if (err) {
@@ -96,24 +87,24 @@ app.get('/cas_login', function(req, res, next) {
   })(req, res, next);
 });
 
-
-
+// Middleware to check user is logged in
 function isLoggedIn(req, res, next) {
     if (req.user) {
         next();
     } else {
-        res.redirect('/cas_login');
+        res.redirect('/');
     }
 }
 
-
+// Routes
 app.get('/', function(req, res) {
   res.send('login with: <a href="/cas_login">Monash</a>');
 });
 
 app.get('/home', isLoggedIn, function(req, res) {
-  res.send('Logged in as: ' + JSON.stringify(req.user));
+  res.send('Welcome! Your user object looks like this: ' + JSON.stringify(req.user));
 });
+
 
 
 /// catch 404 and forward to error handler
@@ -148,4 +139,4 @@ app.use(function(err, req, res, next) {
 });
 
 
-module.exports = app;
+app.listen(8002);
